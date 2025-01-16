@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+    id("kotlin-kapt") // Add this for Glide
+
 }
 
 android {
@@ -41,6 +43,8 @@ android {
 
 dependencies {
 
+    implementation(libs.glide) // Add Glide
+    kapt(libs.glide.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

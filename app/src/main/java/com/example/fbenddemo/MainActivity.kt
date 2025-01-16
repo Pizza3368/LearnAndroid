@@ -64,6 +64,13 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Location permission button", Toast.LENGTH_SHORT).show()
             checkLocationPermission()
 
+        }
+
+        // button 4 listner
+        findViewById<Button>(R.id.settimer).setOnClickListener{
+            Log.d("MainActivity", "set timer button clicked")
+            val intent = Intent(this, settimer::class.java)
+            startActivity(intent)
 
         }
 
