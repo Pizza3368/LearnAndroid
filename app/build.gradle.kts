@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -10,6 +12,13 @@ android {
     namespace = "com.example.fbenddemo"
     compileSdk = 35 //updated to mathe the depenciences
 
+    //FOR GOOGLE AUTHEN
+    val file = rootProject.file("local.properties")
+    val properties = Properties()
+    properties.load(file.inputStream())
+
+
+
     defaultConfig {
         applicationId = "com.example.fbenddemo"
         minSdk = 24
@@ -18,7 +27,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
+        buildConfigField(
+            "String",
+            "WEB_CLIENT_ID",
+            "\"212851287364-401toqbjds0q2aufceds36g3icv93mp6.apps.googleusercontent.com\""
+        )    }
 
     buildTypes {
         release {
@@ -38,12 +51,21 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
 dependencies {
+    //google authan
+    implementation("androidx.credentials:credentials:1.3.0-rc01")
 
-    implementation(libs.glide) // Add Glide
+    // optional - needed for credentials support from play services, for devices running
+    // Android 13 and below.
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation(libs.googleid)
+
+    implementation(libs.glide)
+    implementation(libs.googleid) // Add Glide
     kapt(libs.glide.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
