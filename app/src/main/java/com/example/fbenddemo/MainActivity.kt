@@ -82,8 +82,8 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        // button 3 listner
-        findViewById<Button>(R.id.Login).setOnClickListener{
+        // new button 3 listener
+        findViewById<Button>(R.id.Login).setOnClickListener {
             Log.d("MainActivity", "Login button clicked")
             Log.d("MainActivity", "Web CLIENT ID: ${BuildConfig.WEB_CLIENT_ID}")
 
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
                 .Builder(BuildConfig.WEB_CLIENT_ID)
                 .setNonce(generateHashedNonce())
-            .build()
+                .build()
 
             val request: GetCredentialRequest = GetCredentialRequest.Builder()
                 .addCredentialOption(signInWithGoogleOption)
@@ -108,8 +108,37 @@ class MainActivity : AppCompatActivity() {
                     handleFailure(e)
                 }
             }
-
         }
+
+//
+//        // button 3 listner
+//        findViewById<Button>(R.id.Login).setOnClickListener{
+//            Log.d("MainActivity", "Login button clicked")
+//            Log.d("MainActivity", "Web CLIENT ID: ${BuildConfig.WEB_CLIENT_ID}")
+//
+//            val credentialManager = CredentialManager.create(this)
+//            val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
+//                .Builder(BuildConfig.WEB_CLIENT_ID)
+//                .setNonce(generateHashedNonce())
+//            .build()
+//
+//            val request: GetCredentialRequest = GetCredentialRequest.Builder()
+//                .addCredentialOption(signInWithGoogleOption)
+//                .build()
+//
+//            activityScope.launch {
+//                try {
+//                    val result = credentialManager.getCredential(
+//                        request = request,
+//                        context = this@MainActivity,
+//                    )
+//                    handleSignIn(result)
+//                } catch (e: GetCredentialException) {
+//                    handleFailure(e)
+//                }
+//            }
+//
+//        }
 
         // button 4 listner
         findViewById<Button>(R.id.settimer).setOnClickListener{
@@ -121,42 +150,68 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun handleSignIn(result: GetCredentialResponse) {
+        val credential = result.credential
+        when (credential) {
+            is CustomCredential -> {
+                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    try {
+                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                        val displayName = googleIdTokenCredential.displayName ?: "Unknown User"
+
+                        // Navigate to serverinfo activity
+                        val intent = Intent(this, serverinfo::class.java)
+                        intent.putExtra("USER_NAME", displayName)
+                        startActivity(intent)
+                    } catch (e: GoogleIdTokenParsingException) {
+                        Log.e("MainActivity", "Invalid Google ID token response", e)
+                    }
+                } else {
+                    Log.e("MainActivity", "Unexpected type of credential")
+                }
+            }
+            else -> {
+                Log.e("MainActivity", "Unexpected type of credential")
+            }
+        }
+    }
+
     private fun handleFailure(e: GetCredentialException) {
         Log.e("MainActivity", "Error getting credential", e)
         Toast.makeText(this, "Error getting credential", Toast.LENGTH_SHORT).show()
 
     }
 
-    fun handleSignIn(result: GetCredentialResponse) {
-        // Handle the successfully returned credential.
-        val credential = result.credential
-
-        when (credential) {
-            is CustomCredential -> {
-                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                    try {
-                        // Use googleIdTokenCredential and extract id to validate and
-                        // authenticate on your server.
-                        val googleIdTokenCredential = GoogleIdTokenCredential
-                            .createFrom(credential.data)
-                        updateWelcomMessage(googleIdTokenCredential.displayName.toString())
-                    } catch (e: GoogleIdTokenParsingException) {
-                        Log.e("MainActivity", "Received an invalid google id token response", e)
-                       
-                    }
-                }
-                else {
-                    // Catch any unrecognized credential type here.
-                    Log.e("MainActivity", "Unexpected type of credential")
-                }
-            }
-
-            else -> {
-                // Catch any unrecognized credential type here.
-                Log.e("MainActivity", "Unexpected type of credential")
-            }
-        }
-    }
+//    fun handleSignIn(result: GetCredentialResponse) {
+//        // Handle the successfully returned credential.
+//        val credential = result.credential
+//
+//        when (credential) {
+//            is CustomCredential -> {
+//                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+//                    try {
+//                        // Use googleIdTokenCredential and extract id to validate and
+//                        // authenticate on your server.
+//                        val googleIdTokenCredential = GoogleIdTokenCredential
+//                            .createFrom(credential.data)
+//                        updateWelcomMessage(googleIdTokenCredential.displayName.toString())
+//                    } catch (e: GoogleIdTokenParsingException) {
+//                        Log.e("MainActivity", "Received an invalid google id token response", e)
+//
+//                    }
+//                }
+//                else {
+//                    // Catch any unrecognized credential type here.
+//                    Log.e("MainActivity", "Unexpected type of credential")
+//                }
+//            }
+//
+//            else -> {
+//                // Catch any unrecognized credential type here.
+//                Log.e("MainActivity", "Unexpected type of credential")
+//            }
+//        }
+//    }
 
     private fun updateWelcomMessage(name: String) {
         //something about building a welcome text
